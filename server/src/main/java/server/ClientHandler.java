@@ -4,6 +4,8 @@ import java.io.DataInputStream;
 import java.io.DataOutputStream;
 import java.io.IOException;
 import java.net.Socket;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
 
 public class ClientHandler {
     Socket socket;
@@ -23,7 +25,8 @@ public class ClientHandler {
             in = new DataInputStream(socket.getInputStream());
             out = new DataOutputStream(socket.getOutputStream());
 
-            new Thread(() -> {
+            ExecutorService executorService = Executors.newCachedThreadPool();
+            executorService.execute(() -> {
                 try {
                     //socket.setSoTimeout(0);
                     // цикл аутентификации
@@ -115,18 +118,19 @@ public class ClientHandler {
                             server.broadcastMsg(this, str);
                         }
                     }
-                // SocketTimeoutException
+                    // SocketTimeoutException
                 } catch (IOException e) {
                     e.printStackTrace();
                 } finally {
                     server.unsubscribe(this);
+                    executorService.shutdown();
                     try {
                         socket.close();
                     } catch (IOException e) {
                         e.printStackTrace();
                     }
                 }
-            }).start();
+            });
         } catch (IOException e) {
             e.printStackTrace();
         }
