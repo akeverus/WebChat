@@ -68,6 +68,7 @@ public class Controller implements Initializable {
 
         if (!authenticated) {
             nickname = "";
+            Log.stopLog();
         }
         setTitle(nickname);
         textArea.clear();
@@ -112,6 +113,10 @@ public class Controller implements Initializable {
                             if (str.startsWith("/authok")) {
                                 nickname = str.split("\\s")[1];
                                 setAuthenticated(true);
+                                ///==============///
+                                textArea.appendText(Log.getLastHundredMsgFromLog(login));
+                                Log.startLog(login);
+                                ///==============///
                                 break;
                             }
                             if (str.equals("/regok")) {
@@ -140,15 +145,13 @@ public class Controller implements Initializable {
                                     }
                                 });
                             }
-                            //==============//
                             if (str.startsWith("/yournickis ")) {
                                 nickname = str.split(" ")[1];
                                 setTitle(nickname);
                             }
-                            //==============//
                         } else {
                             textArea.appendText(str + "\n");
-
+                            Log.writeLine(str);
                         }
                     }
 
@@ -185,10 +188,7 @@ public class Controller implements Initializable {
         if (socket == null || socket.isClosed()) {
             connect();
         }
-
-        ///==============///
         login = loginField.getText().trim();
-        ///==============///
         String password = passwordField.getText().trim();
         String msg = String.format("/auth %s %s", login, password);
 
